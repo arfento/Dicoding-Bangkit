@@ -15,7 +15,7 @@ import com.example.animationproperty.view.login.LoginActivity
 import com.example.animationproperty.view.signup.SignupActivity
 
 class WelcomeActivity : AppCompatActivity() {
-    private lateinit var  binding : ActivityWelcomeBinding
+    private lateinit var binding: ActivityWelcomeBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWelcomeBinding.inflate(layoutInflater)
@@ -70,6 +70,5 @@ class WelcomeActivity : AppCompatActivity() {
             start()
         }
     }
-
 
 }
