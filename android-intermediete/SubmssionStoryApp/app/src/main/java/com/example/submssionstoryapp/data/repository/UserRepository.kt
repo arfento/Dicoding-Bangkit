@@ -8,17 +8,23 @@ import com.example.submssionstoryapp.data.model.UserModel
 import com.example.submssionstoryapp.data.pref.UserPreference
 import kotlinx.coroutines.flow.Flow
 
-class UserRepository private constructor(private val userPreference: UserPreference, private val apiService: ApiService) {
+class UserRepository private constructor(
+    private val userPreference: UserPreference,
+    private val apiService: ApiService
+) {
 
     fun getSession(): Flow<UserModel> {
         return userPreference.getSession()
     }
+
     suspend fun logout() {
         userPreference.logout()
     }
+
     suspend fun login(email: String, password: String): LoginResponse {
         return apiService.login(email, password)
     }
+
     suspend fun register(name: String, email: String, password: String): RegisterResponse {
         return apiService.register(name, email, password)
     }
@@ -26,6 +32,7 @@ class UserRepository private constructor(private val userPreference: UserPrefere
     suspend fun getStory(token: String): StoryResponse {
         return apiService.getStory(token)
     }
+
     suspend fun setAuth(user: UserModel) = userPreference.saveSession(user)
 
     companion object {

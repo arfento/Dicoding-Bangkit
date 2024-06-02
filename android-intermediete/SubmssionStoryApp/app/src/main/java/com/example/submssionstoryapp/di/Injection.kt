@@ -2,9 +2,9 @@ package com.example.submssionstoryapp.di
 
 import android.content.Context
 import com.example.submssionstoryapp.data.api.ApiConfig
-import com.example.submssionstoryapp.data.repository.UserRepository
 import com.example.submssionstoryapp.data.pref.UserPreference
 import com.example.submssionstoryapp.data.pref.dataStore
+import com.example.submssionstoryapp.data.repository.UserRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 

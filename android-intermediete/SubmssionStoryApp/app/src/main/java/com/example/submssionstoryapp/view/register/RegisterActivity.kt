@@ -4,13 +4,13 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.example.submssionstoryapp.R
 import com.example.submssionstoryapp.ViewModelFactory
@@ -23,6 +23,7 @@ class RegisterActivity : AppCompatActivity() {
     private val viewModel by viewModels<RegisterViewModel> {
         ViewModelFactory.getInstance(this)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
@@ -50,6 +51,7 @@ class RegisterActivity : AppCompatActivity() {
         }
         supportActionBar?.hide()
     }
+
     private fun setupAction() {
         binding.signupButton.setOnClickListener {
             val name = binding.nameEditText.text.toString()
@@ -57,44 +59,54 @@ class RegisterActivity : AppCompatActivity() {
             val password = binding.passwordEditText.text.toString()
 
             when {
-                name.isEmpty()-> {
+                name.isEmpty() -> {
                     binding.nameEditText.error = getString(R.string.name_validation)
                 }
-                email.isEmpty()-> {
-                    binding.emailEditText.error  = getString(R.string.email_validation)
+
+                email.isEmpty() -> {
+                    binding.emailEditText.error = getString(R.string.email_validation)
                 }
-                password.isEmpty()-> {
+
+                password.isEmpty() -> {
                     binding.passwordEditText.error = getString(R.string.password_validation)
-                } else -> {
-                showLoading(true)
-                viewModel.register(name, email, password)
-                viewModel.isLoading.observe(this, Observer { isLoading ->
-                    if (isLoading) {
-                        AlertDialog.Builder(this).apply {
-                            setTitle("Yeah!")
-                            val message = getString(R.string.account_created_message, email)
-                            setMessage(message)
-                            setPositiveButton(getString(R.string.next)) { _, _ ->
-                                val intent = Intent(context, LoginActivity::class.java)
-                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                                startActivity(intent)
-                                finish()
+                }
+
+                else -> {
+                    showLoading(true)
+                    viewModel.register(name, email, password)
+                    viewModel.isLoading.observe(this, Observer { isLoading ->
+                        if (isLoading) {
+                            AlertDialog.Builder(this).apply {
+                                setTitle("Yeah!")
+                                val message = getString(R.string.account_created_message, email)
+                                setMessage(message)
+                                setPositiveButton(getString(R.string.next)) { _, _ ->
+                                    val intent = Intent(context, LoginActivity::class.java)
+                                    intent.flags =
+                                        Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                    startActivity(intent)
+                                    finish()
+                                }
+                                create()
+                                show()
                             }
-                            create()
-                            show()
+                        } else {
+                            Snackbar.make(
+                                binding.root,
+                                getString(R.string.register_failed),
+                                Snackbar.LENGTH_SHORT
+                            ).show()
                         }
-                    } else {
-                        Snackbar.make(binding.root, getString(R.string.registerFailed), Snackbar.LENGTH_SHORT).show()
-                    }
-                    showLoading(false)
-                })
-                setupView()
-            }
+                        showLoading(false)
+                    })
+                    setupView()
+                }
             }
         }
     }
-    private fun showLoading(isLoading: Boolean){
-        if (isLoading){
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
             binding.progressBar.visibility = View.VISIBLE
         } else {
             binding.progressBar.visibility = View.GONE

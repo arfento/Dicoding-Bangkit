@@ -1,31 +1,46 @@
 <resources>
-    <string name="app_name">SubmssionStoryApp</string>
-    <string name="alert_invalid_email">Email Invalid</string>
-    <string name="password_invalid">Password tidak boleh kurang dari 8 karakter</string>
+    <string name="app_name">Story App</string>
     <string name="signup">Daftar</string>
     <string name="login">Masuk</string>
+    <string name="password_invalid">Password tidak boleh kurang dari 8 karakter</string>
+    <string name="alert_invalid_email">Email Invalid</string>
     <string name="message_welcome_page">Mau berbagi cerita, foto, video atau kegiatan sehari-hari anda lakukan Di Story App aja!</string>
     <string name="title_welcome_page">Selamat datang di Story App</string>
     <string name="title_signup_page">Lengkapi data dirimu di bawah ini ya</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="message_login_page">Masukkan dulu datamu ya</string>
-    <string name="title_login_page">Sudah siap untuk upgrade skill?</string>
+    <string name="title_login_page">Sudah siap untuk berbagi cerita kamu?</string>
     <string name="name">Nama</string>
-    <string name="message_main_page">Selamat Datang di Story App.</string>
-    <string name="greeting">Halo %1$s,</string>
     <string name="logout">Keluar</string>
-
     <string name="email_validation">Email harus diisi</string>
     <string name="name_validation">Nama harus diisi</string>
     <string name="password_validation">Password harus diisi</string>
     <string name="success_login">Anda berhasil login</string>
     <string name="next">Lanjut</string>
-
-    <string name="error_login_message">An unexpected error occurred</string>
     <string name="account_created_message">Akun dengan %1$s sudah jadi nih. Yuk, login dan mulai berbagi cerita.</string>
-    <string name="registerFailed">Registrasi gagal, Silahkan coba lagi!</string>
-
+    <string name="register_failed">Registrasi gagal, Silahkan coba lagi!</string>
+    <string name="story_image">Gambar Cerita</string>
+    <string name="add_story_text">Tombol Tambah Cerita</string>
+    <string name="multiLanguage">Pengaturan Bahasa</string>
+    <string name="exit_confirm">Konfirmasi Keluar</string>
+    <string name="exit">Apakah Anda yakin ingin keluar?</string>
+    <string name="yes">Ya</string>
+    <string name="no">Tidak</string>
+    <string name="upload">Upload\n</string>
+    <string name="description">Deskripsi</string>
+    <string name="image_preview">Preview Gambar</string>
+    <string name="camera">Kamera</string>
+    <string name="gallery">Galeri</string>
+    <string name="empty_story">List data story kosong</string>
+    <string name="success_upload">Upload Berhasil</string>
+    <string name="succes_story_upload">Cerita Berhasil Diunggah</string>
+    <string name="token_toast">Token tidak tersedia</string>
+    <string name="empty_image_warning">Gambar tidak boleh kosong</string>
+    <string name="date_created">Tanggal Dibuat</string>
+    <string name="author_name">Nama Pengarang</string>
+    <string name="story_description">Deskripsi Cerita</string>
+    <string name="detail_story">Detail Cerita</string>
 
 
 </resources>

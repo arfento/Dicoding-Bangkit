@@ -28,8 +28,7 @@ interface ApiService {
     @FormUrlEncoded
     @POST("login")
     suspend fun login(
-        @Field("email") email: String,
-        @Field("password") password: String
+        @Field("email") email: String, @Field("password") password: String
     ): LoginResponse
 
     // Post Story
@@ -45,5 +44,5 @@ interface ApiService {
     @GET("stories")
     suspend fun getStory(
         @Header("Authorization") token: String,
-    ) : StoryResponse
+    ): StoryResponse
 }
