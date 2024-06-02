@@ -4,15 +4,28 @@
     <string name="password_invalid">Password tidak boleh kurang dari 8 karakter</string>
     <string name="signup">Daftar</string>
     <string name="login">Masuk</string>
-    <string name="message_welcome_page">Mau belajar Android, iOS, Machine Learning, Cloud, Front-End, Back-End, dan bidang IT lainnya? Di Dicoding aja!</string>
-    <string name="title_welcome_page">Selamat datang di Dicoding!</string>
+    <string name="message_welcome_page">Mau berbagi cerita, foto, video atau kegiatan sehari-hari anda lakukan Di Story App aja!</string>
+    <string name="title_welcome_page">Selamat datang di Story App</string>
     <string name="title_signup_page">Lengkapi data dirimu di bawah ini ya</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="message_login_page">Masukkan dulu datamu ya</string>
     <string name="title_login_page">Sudah siap untuk upgrade skill?</string>
     <string name="name">Nama</string>
-    <string name="message_main_page">Selamat Belajar di Dicoding.</string>
+    <string name="message_main_page">Selamat Datang di Story App.</string>
     <string name="greeting">Halo %1$s,</string>
     <string name="logout">Keluar</string>
+
+    <string name="email_validation">Email harus diisi</string>
+    <string name="name_validation">Nama harus diisi</string>
+    <string name="password_validation">Password harus diisi</string>
+    <string name="success_login">Anda berhasil login</string>
+    <string name="next">Lanjut</string>
+
+    <string name="error_login_message">An unexpected error occurred</string>
+    <string name="account_created_message">Akun dengan %1$s sudah jadi nih. Yuk, login dan mulai berbagi cerita.</string>
+    <string name="registerFailed">Registrasi gagal, Silahkan coba lagi!</string>
+
+
+
 </resources>

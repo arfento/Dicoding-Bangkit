@@ -8,10 +8,12 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.example.submssionstoryapp.data.pref.UserModel
+import com.example.submssionstoryapp.R
+import com.example.submssionstoryapp.data.model.UserModel
 import com.example.submssionstoryapp.ViewModelFactory
 import com.example.submssionstoryapp.view.main.MainActivity
 import com.example.submssionstoryapp.databinding.ActivityLoginBinding
@@ -48,21 +50,76 @@ class LoginActivity : AppCompatActivity() {
     private fun setupAction() {
         binding.loginButton.setOnClickListener {
             val email = binding.emailEditText.text.toString()
-            viewModel.saveSession(UserModel(email, "sample_token"))
-            AlertDialog.Builder(this).apply {
-                setTitle("Yeah!")
-                setMessage("Anda berhasil login. Sudah tidak sabar untuk belajar ya?")
-                setPositiveButton("Lanjut") { _, _ ->
-                    val intent = Intent(context, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
-                    finish()
+            val password = binding.passwordEditText.text.toString()
+            when {
+                email.isEmpty() -> {
+                    binding.emailEditText.error = getString(R.string.email_validation)
                 }
-                create()
-                show()
+
+                password.isEmpty() -> {
+                    binding.passwordEditText.error = getString(R.string.password_validation)
+                }
+                else -> {
+                    viewModel.login(email, password)
+                    showLoading(true)
+                }
+            }
+        }
+        observeLoginResponse()
+        observeLoadingState()
+        observeErrorState()
+    }
+
+    private fun observeLoginResponse() {
+        viewModel.loginResponse.observe(this) { response ->
+            if (response.error) {
+                Toast.makeText(this, response.message, Toast.LENGTH_SHORT).show()
+            } else {
+                AlertDialog.Builder(this).apply {
+                    setTitle("Yeah!")
+                    setMessage(getString(R.string.success_login))
+                    setPositiveButton(getString(R.string.next)) { _, _ ->
+                        val intent = Intent(context, MainActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        startActivity(intent)
+                        finish()
+                        showLoading(false)
+                    }
+                    create()
+                    show()
+                }
             }
         }
     }
+
+    private fun observeLoadingState() {
+        viewModel.isLoading.observe(this) { isLoading ->
+            showLoading(isLoading)
+        }
+    }
+
+    private fun observeErrorState() {
+        viewModel.isError.observe(this) { errorMessage ->
+            if (!errorMessage.isNullOrEmpty()) {
+                showError(errorMessage)
+                showLoading(false)
+            }
+        }
+    }
+
+    private fun showError(errorMessage: String) {
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            binding.progressBar.visibility = View.VISIBLE
+        } else {
+            binding.progressBar.visibility = View.INVISIBLE
+        }
+    }
+
 
     private fun playAnimation() {
         ObjectAnimator.ofFloat(binding.imageView, View.TRANSLATION_X, -30f, 30f).apply {
