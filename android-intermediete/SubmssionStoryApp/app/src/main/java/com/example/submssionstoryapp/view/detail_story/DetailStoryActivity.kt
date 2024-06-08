@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.submssionstoryapp.R
 import com.example.submssionstoryapp.databinding.ActivityDetailStoryBinding
+import com.example.submssionstoryapp.utils.DateFormatter
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.TimeZone
 
 class DetailStoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailStoryBinding
@@ -45,12 +47,7 @@ class DetailStoryActivity : AppCompatActivity() {
 
         binding.tvNama.text = name
         binding.tvDesc.text = description
-        //convert to date
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(createdAt)
-        //convert to string
-        val formattedDatesString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
-
-        binding.tvDate.text = formattedDatesString
+        binding.tvDate.text = DateFormatter.formatDate(createdAt!!, TimeZone.getDefault().id)
     }
 
     companion object {
