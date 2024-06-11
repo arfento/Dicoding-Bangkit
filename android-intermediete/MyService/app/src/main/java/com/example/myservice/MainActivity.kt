@@ -5,6 +5,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.Manifest
+import android.content.ComponentName
+import android.content.ServiceConnection
+import android.os.IBinder
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -15,14 +18,31 @@ import com.example.myservice.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private var boundStatus = false
+    private lateinit var boundService: MyBoundService
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceDisconnected(name: ComponentName) {
+            boundStatus = false
+        }
+
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            val myBinder = service as MyBoundService.MyBinder
+            boundService = myBinder.getService
+            boundStatus = true
+            getNumberFromService()
+        }
+    }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean? ->
         if (!isGranted!!)
-            Toast.makeText(this,
+            Toast.makeText(
+                this,
                 "Unable to display Foreground service notification due to permission decline",
-                Toast.LENGTH_LONG)
+                Toast.LENGTH_LONG
+            )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,8 +58,12 @@ class MainActivity : AppCompatActivity() {
             stopService(serviceIntent)
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            )
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
 
@@ -55,7 +79,28 @@ class MainActivity : AppCompatActivity() {
         binding.btnStopForegroundService.setOnClickListener {
             stopService(foregroundServiceIntent)
         }
+        val boundServiceIntent = Intent(this, MyBoundService::class.java)
+        binding.btnStartBoundService.setOnClickListener {
+            bindService(boundServiceIntent, connection, BIND_AUTO_CREATE)
+        }
+        binding.btnStopBoundService.setOnClickListener {
+            unbindService(connection)
+        }
+    }
 
+
+    private fun getNumberFromService() {
+        boundService.numberLiveData.observe(this) { number ->
+            binding.tvBoundServiceNumber.text = number.toString()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (boundStatus) {
+            unbindService(connection)
+            boundStatus = false
+        }
     }
 
 }
