@@ -7,11 +7,12 @@ import com.example.submssionstoryapp.data.repository.UserRepository
 import com.example.submssionstoryapp.view.login.LoginViewModel
 import com.example.submssionstoryapp.view.main.MainViewModel
 import com.example.submssionstoryapp.di.Injection
+import com.example.submssionstoryapp.view.maps.MapsViewModel
 import com.example.submssionstoryapp.view.register.RegisterViewModel
+import com.example.submssionstoryapp.view.story.StoryViewModel
 
 class ViewModelFactory(private val repository: UserRepository) :
     ViewModelProvider.NewInstanceFactory() {
-
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
@@ -26,7 +27,13 @@ class ViewModelFactory(private val repository: UserRepository) :
             modelClass.isAssignableFrom(RegisterViewModel::class.java) -> {
                 RegisterViewModel(repository) as T
             }
+            modelClass.isAssignableFrom(StoryViewModel::class.java) -> {
+                StoryViewModel(repository) as T
+            }
 
+            modelClass.isAssignableFrom(MapsViewModel::class.java) -> {
+                MapsViewModel(repository) as T
+            }
             else -> throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
         }
     }

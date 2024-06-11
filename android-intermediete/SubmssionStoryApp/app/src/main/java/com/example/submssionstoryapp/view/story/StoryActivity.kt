@@ -1,19 +1,24 @@
 package com.example.submssionstoryapp.view.story
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.submssionstoryapp.R
-import com.example.submssionstoryapp.data.api.ApiConfig
-import com.example.submssionstoryapp.data.model.FileUploadResponse
+import com.example.submssionstoryapp.ViewModelFactory
 import com.example.submssionstoryapp.data.pref.UserPreference
 import com.example.submssionstoryapp.data.pref.dataStore
 import com.example.submssionstoryapp.databinding.ActivityStoryBinding
@@ -21,51 +26,177 @@ import com.example.submssionstoryapp.utils.getImageUri
 import com.example.submssionstoryapp.utils.reduceFileImage
 import com.example.submssionstoryapp.utils.uriToFile
 import com.example.submssionstoryapp.view.main.MainActivity
-import com.google.gson.Gson
-import kotlinx.coroutines.launch
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.HttpException
 
 class StoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStoryBinding
-    private lateinit var userPreference: UserPreference
+    private lateinit var fusedLocation: FusedLocationProviderClient
+    private var lat: Double? = null
+    private var lon: Double? = null
     private var currentImageUri: Uri? = null
+    private lateinit var userPreference: UserPreference
+
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Toast.makeText(this, getString(R.string.request_granted), Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(this, getString(R.string.request_denied), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private val viewModel by viewModels<StoryViewModel> {
+        ViewModelFactory.getInstance(this)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        fusedLocation = LocationServices.getFusedLocationProviderClient(this)
 
         userPreference = UserPreference.getInstance(dataStore)
 
+        if (!allPermissionsGranted()) {
+            requestPermissionLauncher.launch(REQUIRED_PERMISSION)
+        }
+
+        viewModel.isLoading.observe(this) {
+            showLoading(it)
+        }
+
+        binding.apply {
+            checkBoxLocation.setOnClickListener {
+                if (!checkBoxLocation.isChecked) {
+                    lat = null
+                    lon = null
+                    checkBoxLocation.isChecked = false
+                } else {
+                    checkBoxLocation.isChecked = true
+                    requestLocatedPermission()
+                }
+            }
+        }
+
         binding.galleryButton.setOnClickListener { startGallery() }
         binding.btnCamera.setOnClickListener { startCamera() }
-        binding.uploadButton.setOnClickListener { uploadImage() }
+        binding.uploadButton.setOnClickListener {
+            uploadPhoto()
+        }
+
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
+    private fun uploadPhoto() {
+        showLoading(true)
+        val desc = binding.descriptionText.text.toString()
+        if (currentImageUri != null && desc.isNotEmpty()) {
+            val imageFile = uriToFile(currentImageUri!!, this).reduceFileImage()
+            val requestBody = desc.toRequestBody("text/plain".toMediaType())
+            val reqImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
+            val multipartBody = MultipartBody.Part.createFormData(
+                "photo",
+                imageFile.name,
+                reqImageFile
+            )
+            viewModel.uploadStory(
+                this@StoryActivity,
+                requestBody,
+                multipartBody,
+                lat,
+                lon
+            )
+            moveToMain()
+        } else {
+            showToast(getString(R.string.empty_error))
+            showLoading(false)
+
+        }
+    }
+
+
+    private fun moveToMain() {
+        AlertDialog.Builder(this@StoryActivity).apply {
+            setTitle(getString(R.string.success_upload))
+            setMessage(getString(R.string.succes_story_upload))
+            setPositiveButton(getString(R.string.next)) { _, _ ->
+                val intent =
+                    Intent(this@StoryActivity, MainActivity::class.java).apply {
+                        flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                startActivity(intent)
+                finish()
+            }
+            create()
+            show()
+        }
+    }
+
+    private fun getMyLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            binding.checkBoxLocation.isActivated = false
+            return
+        }
+
+        fusedLocation.lastLocation.addOnSuccessListener { mylocation ->
+            lat = mylocation.latitude
+            lon = mylocation.longitude
+        }
+
+    }
+
+    private fun allPermissionsGranted() =
+        ContextCompat.checkSelfPermission(
+            this,
+            REQUIRED_PERMISSION
+        ) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestLocatedPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_CODE
+            )
+            showToast("Location permission is needed for accessing location.")
+            binding.checkBoxLocation.isChecked = false
+        } else {
+            getMyLocation()
+        }
+    }
+
+    private fun startCamera() {
+        currentImageUri = getImageUri(this)
+        launcherCamera.launch(currentImageUri!!)
     }
 
     private fun startGallery() {
         launcherGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
-    private val launcherGallery = registerForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            currentImageUri = uri
-            showImage()
-        } else {
-            Log.d("Photo Picker", "No media selected")
-        }
-    }
-
-    private fun startCamera() {
-        currentImageUri = getImageUri(this)
-        launcherIntentCamera.launch(currentImageUri!!)
-    }
-
-    private val launcherIntentCamera = registerForActivityResult(
+    private val launcherCamera = registerForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { isSuccess ->
         if (isSuccess) {
@@ -73,63 +204,15 @@ class StoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadImage() {
-        val description = binding.descriptionText.text.toString()
-
-        currentImageUri?.let { uri ->
-            val imageFile = uriToFile(uri, this).reduceFileImage()
-            Log.d("Image File", "showImage: ${imageFile.path}")
-
-            showLoading(true)
-
-            val requestBody = description.toRequestBody("text/plain".toMediaType())
-            val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
-            val multipartBody = MultipartBody.Part.createFormData(
-                "photo",
-                imageFile.name,
-                requestImageFile
-            )
-            lifecycleScope.launch {
-                userPreference.getSession().collect { user ->
-                    val token = user.token
-                    if (token.isNotEmpty()) {
-                        try {
-                            val apiService = ApiConfig.getApiService(token)
-                            val successResponse =
-                                apiService.uploadStory("Bearer $token", multipartBody, requestBody)
-                            showToast(successResponse.message)
-
-                            AlertDialog.Builder(this@StoryActivity).apply {
-                                setTitle(getString(R.string.success_upload))
-                                setMessage(getString(R.string.succes_story_upload))
-                                setPositiveButton(getString(R.string.next)) { _, _ ->
-                                    val intent =
-                                        Intent(this@StoryActivity, MainActivity::class.java).apply {
-                                            flags =
-                                                Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                                        }
-                                    startActivity(intent)
-                                    finish()
-                                }
-                                create()
-                                show()
-                            }
-
-                        } catch (e: HttpException) {
-                            val errorBody = e.response()?.errorBody()?.string()
-                            val errorResponse =
-                                Gson().fromJson(errorBody, FileUploadResponse::class.java)
-                            showToast(errorResponse.message)
-                        } finally {
-                            showLoading(false)
-                        }
-                    } else {
-                        showToast(getString(R.string.token_toast))
-                        showLoading(false)
-                    }
-                }
-            }
-        } ?: showToast(getString(R.string.empty_image_warning))
+    private val launcherGallery = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            currentImageUri = uri
+            showImage()
+        } else {
+            Log.d("Photo Picker", "No media selected")
+        }
     }
 
     private fun showImage() {
@@ -143,7 +226,9 @@ class StoryActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun showLoading(isLoading: Boolean) {
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    companion object {
+        private const val REQUIRED_PERMISSION = Manifest.permission.CAMERA
+        private const val REQUEST_CODE = 101
     }
+
 }

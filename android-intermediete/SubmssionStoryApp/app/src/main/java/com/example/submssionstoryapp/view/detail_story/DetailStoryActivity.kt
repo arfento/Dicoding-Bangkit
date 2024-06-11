@@ -1,13 +1,13 @@
 package com.example.submssionstoryapp.view.detail_story
 
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.submssionstoryapp.R
+import com.example.submssionstoryapp.data.model.ListStoryItem
 import com.example.submssionstoryapp.databinding.ActivityDetailStoryBinding
 import com.example.submssionstoryapp.utils.DateFormatter
-import java.text.SimpleDateFormat
-import java.util.Locale
 import java.util.TimeZone
 
 class DetailStoryActivity : AppCompatActivity() {
@@ -21,42 +21,31 @@ class DetailStoryActivity : AppCompatActivity() {
         supportActionBar?.title = getString(R.string.detail_story)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val photoUrl = intent.getStringExtra(EXTRA_PHOTO_URL)
-        val createdAt = intent.getStringExtra(EXTRA_CREATED_AT)
-        val name = intent.getStringExtra(EXTRA_NAME)
-        val description = intent.getStringExtra(EXTRA_DESCRIPTION)
-        val lon = intent.getDoubleExtra(EXTRA_LON, 0.0)
-        val id = intent.getStringExtra(EXTRA_ID)
-        val lat = intent.getDoubleExtra(EXTRA_LAT, 0.0)
+        val storyItem = intent.getParcelableExtra<ListStoryItem>(EXTRA_STORY_ITEM)
 
-        detailView(photoUrl, createdAt, name, description, lon, id, lat)
+        storyItem?.let { item ->
+            detailView(item)
+        }
+
     }
 
-    private fun detailView(
-        photoUrl: String?,
-        createdAt: String?,
-        name: String?,
-        description: String?,
-        lon: Double,
-        id: String?,
-        lat: Double
-    ) {
+    private fun detailView(storyItem: ListStoryItem) {
         Glide.with(this@DetailStoryActivity)
-            .load(photoUrl)
+            .load(storyItem.photoUrl)
             .into(binding.ivStory)
 
-        binding.tvNama.text = name
-        binding.tvDesc.text = description
-        binding.tvDate.text = DateFormatter.formatDate(createdAt!!, TimeZone.getDefault().id)
+        binding.tvNama.text = storyItem.name
+        binding.tvDesc.text = storyItem.description
+        binding.tvLatitude.text = storyItem.lat.toString()
+        binding.tvLongitude.text = storyItem.lat.toString()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            binding.tvDate.text =
+                DateFormatter.formatDate(storyItem.createdAt!!, TimeZone.getDefault().id)
+        }
     }
 
+
     companion object {
-        const val EXTRA_PHOTO_URL = "EXTRA_PHOTO_URL"
-        const val EXTRA_CREATED_AT = "EXTRA_CREATED_AT"
-        const val EXTRA_NAME = "EXTRA_NAME"
-        const val EXTRA_DESCRIPTION = "EXTRA_DESCRIPTION"
-        const val EXTRA_LON = "EXTRA_LON"
-        const val EXTRA_ID = "EXTRA_ID"
-        const val EXTRA_LAT = "EXTRA_LAT"
+        const val EXTRA_STORY_ITEM = "EXTRA_STORY_ITEM"
     }
 }

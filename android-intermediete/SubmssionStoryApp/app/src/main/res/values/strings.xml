@@ -32,15 +32,20 @@
     <string name="image_preview">Preview Gambar</string>
     <string name="camera">Kamera</string>
     <string name="gallery">Galeri</string>
-    <string name="empty_story">List data story kosong</string>
     <string name="success_upload">Upload Berhasil</string>
     <string name="succes_story_upload">Cerita Berhasil Diunggah</string>
-    <string name="token_toast">Token tidak tersedia</string>
-    <string name="empty_image_warning">Gambar tidak boleh kosong</string>
     <string name="date_created">Tanggal Dibuat</string>
     <string name="author_name">Nama Pengarang</string>
     <string name="story_description">Deskripsi Cerita</string>
+    <string name="latitude">Latitude :</string>
+    <string name="longitude">Longitude :</string>
     <string name="detail_story">Detail Cerita</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="menu_maps">Menu Maps</string>
+    <string name="include_location">Include Location</string>
+    <string name="request_granted">Permission request diizinkan</string>
+    <string name="request_denied">Permission request ditolak</string>
+    <string name="empty_error">Data tidak boleh kosong.</string>
 
 
 </resources>

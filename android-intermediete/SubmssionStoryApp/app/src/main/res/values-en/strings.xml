@@ -33,13 +33,18 @@
     <string name="image_preview">Image Preview</string>
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
-    <string name="empty_story">Empty story list</string>
     <string name="success_upload">Upload successful</string>
     <string name="succes_story_upload">Story uploaded successfully</string>
-    <string name="token_toast">Token is not available</string>
-    <string name="empty_image_warning">Image must not be empty</string>
     <string name="date_created">Created At</string>
     <string name="author_name">Author Name</string>
     <string name="story_description">Story Description</string>
     <string name="detail_story">Detail Story</string>
+    <string name="latitude">Latitude : </string>
+    <string name="longitude">Longitude : </string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="menu_maps">Menu Maps</string>
+    <string name="include_location">Include Location</string>
+    <string name="request_granted">Permission request granted</string>
+    <string name="request_denied">Permission request denied</string>
+    <string name="empty_error">Field must not be empty.</string>
 </resources>

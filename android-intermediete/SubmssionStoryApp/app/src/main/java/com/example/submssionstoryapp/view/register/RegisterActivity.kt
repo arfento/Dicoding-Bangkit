@@ -74,7 +74,7 @@ class RegisterActivity : AppCompatActivity() {
                 else -> {
                     showLoading(true)
                     viewModel.register(name, email, password)
-                    viewModel.isLoading.observe(this, Observer { isLoading ->
+                    viewModel.isLoading.observe(this, { isLoading ->
                         if (isLoading) {
                             AlertDialog.Builder(this).apply {
                                 setTitle("Yeah!")
